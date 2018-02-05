@@ -722,19 +722,20 @@ function create_dot_array(pos_array, radius) {
  * @param {*} dot - the Dot object
  * @param {*} color - color of the dot
  */
-function draw_dot(context, dot, color) {
-  if (current_task === "calibration") {
-    time_stamp = new Date().getTime();
-    draw_dot_countdown(context, dot, color);
-  } else if (current_task === "validation") {
-    draw_dot_countup(context, dot, color);
-  } else {
-    context.beginPath();
-    context.arc(dot.x, dot.y, dot.r, 0, 2 * Math.PI);
-    context.strokeStyle = color;
-    context.fillStyle = color;
-    context.fill();
-  }
+function draw_dot(context, dot, color, settings) {
+  time_stamp = new Date().getTime();
+  draw_dot_countdown(context, dot, color, settings);
+
+  // if (current_task === "calibration") {
+  // }
+
+  // } else {
+  //   context.beginPath();
+  //   context.arc(dot.x, dot.y, dot.r, 0, 2 * Math.PI);
+  //   context.strokeStyle = color;
+  //   context.fillStyle = color;
+  //   context.fill();
+  // }
 }
 
 /**
@@ -751,39 +752,6 @@ function draw_track(context, dot, color) {
   context.stroke();
 }
 
-/**
- * Draw a dot with a counting up number inside. Used for validation process
- * @param {*} context
- * @param {*} dot
- * @param {*} color
- */
-function draw_dot_countup(context, dot, color) {
-  clear_canvas();
-
-  //base circle
-  draw_track(context, dot, color);
-
-  //animated circle
-  context.lineWidth = 7;
-  context.beginPath();
-  context.strokeStyle = color;
-  context.arc(
-    dot.x,
-    dot.y,
-    dot.r,
-    Math.PI / -2,
-    Math.PI * 2 * (dot.hit_count / validation_settings.hit_count) +
-      Math.PI / -2,
-    false
-  );
-  context.stroke();
-  //draw countup number
-  context.font = "20px Source Sans Pro";
-  context.fillStyle = color;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(dot.hit_count.toString(), dot.x, dot.y);
-}
 
 /**
  * Draw a dot with count-down number inside. Used for calibration
@@ -791,10 +759,10 @@ function draw_dot_countup(context, dot, color) {
  * @param {*} dot
  * @param {*} color
  */
-function draw_dot_countdown(context, dot, color) {
+function draw_dot_countdown(context, dot, color,settings) {
   var time = new Date().getTime();
   var delta = time - time_stamp;
-  var arc_len = delta * Math.PI * 2 / (1000 * calibration_settings.duration);
+  var arc_len = delta * Math.PI * 2 / (1000 * settings.duration);
   clear_canvas();
   //base circle
   draw_track(context, dot, color);
@@ -818,16 +786,16 @@ function draw_dot_countdown(context, dot, color) {
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillText(
-    calibration_settings.num_dots - num_objects_shown,
+    settings.num_dots - num_objects_shown,
     dot.x,
     dot.y
   );
   //animation
   request_anim_frame(function() {
-    if (delta >= calibration_settings.duration * 1000) {
+    if (delta >= settings.duration * 1000) {
       if (
-        num_objects_shown === Math.floor(calibration_settings.num_dots / 3) ||
-        num_objects_shown === Math.floor(calibration_settings.num_dots * 2 / 3)
+        num_objects_shown === Math.floor(settings.num_dots / 3) ||
+        num_objects_shown === Math.floor(settings.num_dots * 2 / 3)
       ) {
         heatmap_data_x = store_data.gaze_x.slice(0);
         heatmap_data_y = store_data.gaze_y.slice(0);
@@ -871,7 +839,7 @@ window.request_anim_frame = (function(callback) {
     window.oRequestAnimationFrame ||
     window.msRequestAnimationFrame ||
     function(callback) {
-      window.setTimeout(callback, 1000 / 60);
+      window.setTimeout(callback, 1000 / 30);
     }
   );
 })();
@@ -1809,7 +1777,7 @@ function create_new_dot_calibration() {
   send_gaze_data_to_database();
   webgazer.addWatchListener(curr_object.x, curr_object.y);
   time_stamp = new Date().getTime();
-  draw_dot(context, curr_object, dark_color);
+  draw_dot(context, curr_object, dark_color,calibration_settings);
   num_objects_shown++;
 }
 
@@ -1925,7 +1893,7 @@ function loop_simple_paradigm() {
       clear_canvas();
       webgazer.resume();
       collect_data = true;
-      draw_dot(context, curr_object, dark_color);
+      draw_dot(context, curr_object, dark_color, simple_paradigm_settings);
       setTimeout(loop_simple_paradigm, simple_paradigm_settings.dot_show_time);
     }, simple_paradigm_settings.fixation_rest_time);
   }
@@ -1995,7 +1963,7 @@ function loop_pursuit_paradigm() {
     y: curr_object.cy,
     r: DEFAULT_DOT_RADIUS
   };
-  draw_dot(context, dot, light_color);
+  draw_dot(context, dot, light_color, pursuit_paradigm_settings);
   setTimeout(function() {
     time_stamp = null;
     draw_moving_dot();
@@ -2034,7 +2002,7 @@ function draw_moving_dot() {
     var canvas = document.getElementById("canvas-overlay");
     var context = canvas.getContext("2d");
     clear_canvas();
-    draw_dot(context, dot, dark_color);
+    draw_dot(context, dot, dark_color, pursuit_paradigm_settings);
     request_anim_frame(draw_moving_dot);
   }
 }
