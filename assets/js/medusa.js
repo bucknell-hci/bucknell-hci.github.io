@@ -4,7 +4,7 @@
 const TABLE_NAME = "GAZE_DATA"; // name of data table of gaze data
 const USER_TABLE_NAME = "USERS"; // name of data table of users
 const DEFAULT_DOT_RADIUS = 25;
-const SAMPLING_RATE = 15; // number of call to function once webgazer got data per second
+const SAMPLING_RATE = 4; // number of call to function once webgazer got data per second
 const DATA_COLLECTION_RATE = 60; // number of data collected per second.
 
 /************************************
@@ -63,9 +63,9 @@ var calibration_sprite_3 = [];
  * CALIBRATION PARAMETERS
  ************************************/
 var calibration_settings = {
-  dot_show_time: 4000, // duration of a a singe position sampled
+  dot_show_time: 2000, // duration of a a singe position sampled
   method: "watch", // calibration method, either watch or click.
-  num_trials: 1, // the number of dots used for calibration
+  num_trials: 39, // the number of dots used for calibration
   distance: 200, // radius of acceptable gaze data around calibration dot
   position_array: [
     [0.2, 0.2],
