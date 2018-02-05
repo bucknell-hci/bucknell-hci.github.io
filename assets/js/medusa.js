@@ -2330,7 +2330,7 @@ function bonus_round_share(link) {
     link = encodeURIComponent(link);
     share_link =
       "https://www.facebook.com/dialog/share?" +
-      "app_id=140235746556932" +
+      "app_id=114582132643609" +
       "&quote=" +
       encodeURIComponent(
         "I made this drawing only with my eyes. You can make your own AND contribute to science at: https://bucknell-hci.github.io"
