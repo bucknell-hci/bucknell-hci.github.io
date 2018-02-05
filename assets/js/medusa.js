@@ -158,44 +158,7 @@ var docClient = new AWS.DynamoDB.DocumentClient();
 /************************************
  * COMMON FUNCTIONS
  ************************************/
-/**
- * el: the html element, most likely a <a> tag, that contains the link to the download file
- */
-function download_calibration_data(el) {
-    var data = webgazer.getTrainingData();
-    data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    el.setAttribute("href", data);
-    var date = new Date().toDateString();
-    el.setAttribute("download", "calibration_data " + date + ".json");
-}
 
-/**
- * @event: the upload event of the html element which triggers this function
- * Upload the calibration file and parse the data. 
- */
-function upload_calibration_data(event){
-    var input = event.target;
-    var reader = new FileReader();
-    reader.onload = function(){
-        var data = reader.result;
-        try{
-            webgazer_training_data = JSON.parse(data);
-        }
-        catch( err){
-            webgazer_training_data = undefined;
-        }
-
-    };
-    reader.readAsText(input.files[0]);
-    var label	 = event.currentTarget.nextElementSibling,
-        labelVal = label.innerHTML;
-    console.log(label);
-    var fileName = input.value.split( '\\' ).pop();
-    if( fileName )
-        label.querySelector( 'span' ).innerHTML = fileName;
-    else
-        label.innerHTML = labelVal;
-}
 
 /**
  * Shuffles an array in place.
@@ -893,18 +856,22 @@ function consent_form_navigation() {
  * Loads Webgazer. Once loaded, starts the collect data procedure
  */
 function load_webgazer() {
-    navigator.getUserMedia({video: true}, function() {
-        $.getScript("../assets/js/webgazer.js")
+    $.getScript("../assets/js/webgazer.js")
             .done(function( script, textStatus ) {
                 initiate_webgazer();
             })
-            .fail(function( jqxhr, settings, exception ) {
-                $( "div.log" ).text( "Triggered ajaxError handler." );
-            });
-    }, function() {
-        document.getElementById("webcam-info").innerHTML = "";
-        document.getElementById("webcam-info").innerHTML += "No webcam found."
-    });
+    // navigator.getUserMedia({video: true}, function() {
+    //     $.getScript("../assets/js/webgazer.js")
+    //         .done(function( script, textStatus ) {
+    //             initiate_webgazer();
+    //         })
+    //         .fail(function( jqxhr, settings, exception ) {
+    //             $( "div.log" ).text( "Triggered ajaxError handler." );
+    //         });
+    // }, function() {
+    //     document.getElementById("webcam-info").innerHTML = "";
+    //     document.getElementById("webcam-info").innerHTML += "No webcam found."
+    // });
 
 }
 
@@ -970,21 +937,7 @@ function check_webgazer_status() {
  * Creates unique ID from time + RNG. Loads the ID from local storage if it's already there.
  */
 function createID() {
-    // check if there is a gazer_id already stored
     gazer_id = "id-"+((new Date).getTime().toString(16)+Math.floor(1E7*Math.random()).toString(16));
-    // if (typeof(Storage) !== "undefined") {
-    //     console.log(localStorage.getItem("gazer_id"));
-    //     if (localStorage.getItem("gazer_id") !== null){
-    //         gazer_id = localStorage.getItem("gazer_id");
-    //     }
-    //     else{
-    //         gazer_id = "id-"+((new Date).getTime().toString(16)+Math.floor(1E7*Math.random()).toString(16));
-    //         localStorage.setItem("gazer_id", gazer_id);
-    //     }
-    // }
-    // else{
-    //     gazer_id = "id-"+((new Date).getTime().toString(16)+Math.floor(1E7*Math.random()).toString(16));
-    // }
 }
 
 /**
@@ -1177,41 +1130,6 @@ function create_webcam_instruction_final_check() {
     overlay.style.left = "calc(50% + 25px)";
 }
 
-/**
- * Auto fill the survey
- * @param {*} obj - whether the user has filled the form before. yes/no 
- */
-function autofill_survey(obj) {
-    if (obj.value === "no") return;
-    var user_survey_choices = {};
-    if (typeof(Storage) !== "undefined") {
-        if (localStorage.getItem("user_survey_choices") !== null) {
-            user_survey_choices = JSON.parse(localStorage.getItem("user_survey_choices"));
-            $("select").each(function () {
-                if (user_survey_choices.hasOwnProperty(this.id)) {
-                    this.value = user_survey_choices[this.id];
-                }
-            });
-        }
-    }
-}
-
-/**
- * Save user choices to local storage
- */
-function save_user_choices() {
-    if (typeof(Storage) !== "undefined") {
-        var user_survey_choices = {};
-        $("select").each(function () {
-            if (this.id !== "experience") {
-                user_survey_choices[this.id] = this.value;
-            }
-        });
-        user_survey_choices = JSON.stringify(user_survey_choices);
-
-        localStorage.setItem("user_survey_choices", user_survey_choices);
-    }
-}
 
 /**
  * Create the survey
@@ -1413,126 +1331,7 @@ function finish_calibration(){
     reset_store_data(draw_heatmap("create_validation_instruction"));
 }
 
-/************************************
- * VALIDATION
- ************************************/
-function create_validation_instruction() {
-    var instruction_guide1 = "There will be a dot appearing on the screen. Please look at it until the score on the dot reaches " + validation_settings.hit_count.toString() + " points. You will have to repeat this procedure " + validation_settings.num_dots + " times. If the score does not reach " + validation_settings.hit_count.toString() + " points in " + (validation_settings.duration / 1000).toString() + " seconds, you will be redirected to the calibration process. </br> Press the button when you're ready.";
-    create_general_instruction("Validation(2/5)", instruction_guide1, "start_validation()", "Start");
-}
 
-/**
- * Prepares validation process
- */
-function start_validation(){
-    reset_store_data();
-    session_time = (new Date).getTime().toString();
-    store_data.task = "validation";
-    store_data.description = "begin";
-    send_gaze_data_to_database();
-    clear_canvas();
-    delete_elem("instruction");
-    var canvas = document.getElementById("canvas-overlay");
-    var context = canvas.getContext("2d");
-    current_task = 'validation';
-    collect_data = true;
-    webgazer.resume();
-    create_new_dot_validation();
-    var gazeDot = document.getElementById("gazeDot");
-    gazeDot.style.zIndex = 14;
-    gazeDot.style.display = "block";
-}
-
-/**
- * Create new dots for validation
- */
-function create_new_dot_validation(){
-    if (num_objects_shown >= validation_settings.num_dots) {
-        finish_validation(true);
-        return;
-    }
-    var canvas = document.getElementById("canvas-overlay");
-    var context = canvas.getContext("2d");
-    clear_canvas();
-    // if run out of dots, create a new dots array
-    if (objects_array.length === 0) {
-        objects_array = create_dot_array(validation_settings.position_array);
-    }
-    curr_object = objects_array.pop();
-    store_data.description = (num_objects_shown+1).toString();
-    send_gaze_data_to_database();
-    draw_dot(context, curr_object, dark_color);
-    validation_settings.listener = true;
-    time_stamp = new Date().getTime();
-    num_objects_shown++;
-}
-
-/**
- * Handler for 'watch' procedure.
- * @param {*} data
- */
-function validation_event_handler(data) {
-    if (validation_settings.listener === false) {return}
-    var canvas = document.getElementById("canvas-overlay");
-    var context = canvas.getContext("2d");
-    var dist = distance(data.x,data.y,curr_object.x,curr_object.y);
-    if (dist < validation_settings.distance) {
-        if (curr_object.hit_count <= validation_settings.hit_count) {
-            draw_dot(context, curr_object, dark_color);
-            curr_object.hit_count += 1;
-        } else {
-            create_new_dot_validation();
-        }
-    }
-    else{
-        var now = new Date().getTime();
-        if (now - time_stamp > validation_settings.duration){
-            finish_validation(false);
-        }
-    }
-}
-
-/**
- * Triggered when validation ends
- */
-function finish_validation(succeed){
-    validation_settings.listener = false;
-    var gazeDot = document.getElementById("gazeDot");
-    gazeDot.style.display = "none";
-    success = (typeof succeed !== "undefined") ? succeed : true;
-    objects_array = [];
-    num_objects_shown = 0;
-    webgazer.pause();
-    collect_data = false;
-    if (succeed === false) {
-        store_data.description = "fail";
-        send_gaze_data_to_database();
-        reset_store_data(create_validation_fail_screen());
-    }
-    else{
-        store_data.description = "success";
-        send_gaze_data_to_database();
-        paradigm = "simple";
-        heatmap_data_x = store_data.gaze_x.slice(0);
-        heatmap_data_y = store_data.gaze_y.slice(0);
-        reset_store_data(draw_heatmap("navigate_tasks"));
-    }
-}
-
-function create_validation_fail_screen() {
-    clear_canvas();
-    var instruction = document.createElement("div");
-    instruction.id = "instruction";
-    instruction.className += "overlay-div";
-    instruction.style.zIndex = 12;
-    instruction.innerHTML += "<header class=\"form__header\">" +
-        "<h2 class=\"form__title\"> Validation failed. </br> Returning to calibration. </h2>" +
-        "</header>";
-    document.body.appendChild(instruction);
-    setTimeout(function() {
-        create_calibration_instruction();
-    }, screen_timeout);
-}
 
 function create_general_instruction(title, information, button_action, button_label) {
     clear_canvas();
