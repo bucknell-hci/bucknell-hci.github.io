@@ -1119,7 +1119,6 @@ function send_user_data_to_database(callback) {
       info: user
     }
   };
-  save_user_choices();
   toggle_stylesheets();
   docClient.put(params, function(err, data) {
     if (err) {
@@ -1643,7 +1642,7 @@ function create_survey(show_share_button) {
     '<h2 class="form__title">This is the last of it, we promise.</h2>' +
     "</header>" +
     "<form id='selection_fields' style='max-height: 60%; overflow-y: scroll; overflow-x: hidden'>" +
-    "<select id='experience' onchange='autofill_survey(this)' required>" +
+    "<select id='experience' required>" +
     '<option value="" disabled selected> Have you done this experiment before? </option>' +
     "<option value='yes'> Yes </option>" +
     "<option value='no'> No </option>" +
@@ -1871,14 +1870,11 @@ function navigate_tasks() {
     case "massvis":
       create_massvis_instruction();
       break;
-    case "iframe":
-      create_iframe_testable();
-      break;
     case "bonus":
       create_bonus_round_instruction();
       break;
     default:
-      loop_iframe_paradigm();
+      create_simple_instruction();
   }
 }
 
