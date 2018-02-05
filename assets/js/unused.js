@@ -248,6 +248,41 @@ function finish_validation(succeed){
     }
 }
 
+/**
+ * Draw a dot with a counting up number inside. Used for validation process
+ * @param {*} context
+ * @param {*} dot
+ * @param {*} color
+ */
+function draw_dot_countup(context, dot, color) {
+  clear_canvas();
+
+  //base circle
+  draw_track(context, dot, color);
+
+  //animated circle
+  context.lineWidth = 7;
+  context.beginPath();
+  context.strokeStyle = color;
+  context.arc(
+    dot.x,
+    dot.y,
+    dot.r,
+    Math.PI / -2,
+    Math.PI * 2 * (dot.hit_count / validation_settings.hit_count) +
+      Math.PI / -2,
+    false
+  );
+  context.stroke();
+  //draw countup number
+  context.font = "20px Source Sans Pro";
+  context.fillStyle = color;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(dot.hit_count.toString(), dot.x, dot.y);
+}
+
+
 function create_validation_fail_screen() {
     clear_canvas();
     var instruction = document.createElement("div");

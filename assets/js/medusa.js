@@ -4,7 +4,7 @@
 const TABLE_NAME = "GAZE_DATA"; // name of data table of gaze data
 const USER_TABLE_NAME = "USERS"; // name of data table of users
 const DEFAULT_DOT_RADIUS = 25;
-const SAMPLING_RATE = 60; // number of call to function once webgazer got data per second
+const SAMPLING_RATE = 15; // number of call to function once webgazer got data per second
 const DATA_COLLECTION_RATE = 60; // number of data collected per second.
 
 /************************************
@@ -63,9 +63,9 @@ var calibration_sprite_3 = [];
  * CALIBRATION PARAMETERS
  ************************************/
 var calibration_settings = {
-  duration: 4, // duration of a a singe position sampled
+  dot_show_time: 4000, // duration of a a singe position sampled
   method: "watch", // calibration method, either watch or click.
-  num_dots: 3, // the number of dots used for calibration
+  num_trials: 1, // the number of dots used for calibration
   distance: 200, // radius of acceptable gaze data around calibration dot
   position_array: [
     [0.2, 0.2],
@@ -99,7 +99,7 @@ var simple_paradigm_settings = {
     [0.8, 0.8]
   ],
   // num_trials: 8,
-    num_trials: 1,
+  num_trials: 1,
   fixation_rest_time: 1500, // amount of time 'target' will appear on screen with each trial, in ms
   dot_show_time: 5000 // amount of time dot will appear on screen with each trial, in ms
 };
@@ -125,8 +125,8 @@ var pursuit_paradigm_settings = {
     { x: 0.8, y: 0.8, tx: 0.8, ty: 0.2 },
     { x: 0.8, y: 0.8, tx: 0.2, ty: 0.8 }
   ],
-  // num_trials: 12, 
-    num_trials: 1,
+  // num_trials: 12,
+  num_trials: 1,
   dot_show_time: 3500,
   fixation_rest_time: 1500
 };
@@ -722,47 +722,10 @@ function create_dot_array(pos_array, radius) {
  * @param {*} dot - the Dot object
  * @param {*} color - color of the dot
  */
-function draw_dot(context, dot, color, settings) {
-  time_stamp = new Date().getTime();
-  draw_dot_countdown(context, dot, color, settings);
-
-  // if (current_task === "calibration") {
-  // }
-
-  // } else {
-  //   context.beginPath();
-  //   context.arc(dot.x, dot.y, dot.r, 0, 2 * Math.PI);
-  //   context.strokeStyle = color;
-  //   context.fillStyle = color;
-  //   context.fill();
-  // }
-}
-
-/**
- * Draw the track around a dot
- * @param {*} context - context of the canvas to draw
- * @param {*} dot - the Dot object
- * @param {*} color  - the color of the track
- */
-function draw_track(context, dot, color) {
-  context.beginPath();
-  context.arc(dot.x, dot.y, dot.r, 0, 2 * Math.PI);
-  context.strokeStyle = color;
-  context.lineWidth = 1;
-  context.stroke();
-}
-
-
-/**
- * Draw a dot with count-down number inside. Used for calibration
- * @param {*} context
- * @param {*} dot
- * @param {*} color
- */
-function draw_dot_countdown(context, dot, color,settings) {
+function draw_dot_simple(context, dot, color) {
   var time = new Date().getTime();
   var delta = time - time_stamp;
-  var arc_len = delta * Math.PI * 2 / (1000 * settings.duration);
+  var arc_len = delta * Math.PI * 2 / simple_paradigm_settings.dot_show_time;
   clear_canvas();
   //base circle
   draw_track(context, dot, color);
@@ -786,16 +749,78 @@ function draw_dot_countdown(context, dot, color,settings) {
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillText(
-    settings.num_dots - num_objects_shown,
+    simple_paradigm_settings.num_trials - num_objects_shown,
     dot.x,
     dot.y
   );
   //animation
   request_anim_frame(function() {
-    if (delta >= settings.duration * 1000) {
+    if (delta >= simple_paradigm_settings.dot_show_time) {
+      return;
+    } else {
+      draw_dot_simple(context, dot, color);
+    }
+  });
+}
+
+/**
+ * Draw the track around a dot
+ * @param {*} context - context of the canvas to draw
+ * @param {*} dot - the Dot object
+ * @param {*} color  - the color of the track
+ */
+function draw_track(context, dot, color) {
+  context.beginPath();
+  context.arc(dot.x, dot.y, dot.r, 0, 2 * Math.PI);
+  context.strokeStyle = color;
+  context.lineWidth = 1;
+  context.stroke();
+}
+
+/**
+ * Draw a dot with count-down number inside. Used for calibration
+ * @param {*} context
+ * @param {*} dot
+ * @param {*} color
+ */
+function draw_dot_calibration(context, dot, color) {
+  var time = new Date().getTime();
+  var delta = time - time_stamp;
+  var arc_len = delta * Math.PI * 2 / calibration_settings.dot_show_time;
+  clear_canvas();
+  //base circle
+  draw_track(context, dot, color);
+  //animated circle
+  context.lineWidth = 7;
+  context.beginPath();
+  context.strokeStyle = color;
+  context.arc(
+    dot.x,
+    dot.y,
+    dot.r,
+    Math.PI / -2,
+    Math.PI * 3 / 2 - arc_len,
+    false
+  );
+  context.stroke();
+
+  //draw countdown number
+  context.font = "20px Source Sans Pro";
+  context.fillStyle = color;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(
+    calibration_settings.num_trials - num_objects_shown,
+    dot.x,
+    dot.y
+  );
+  //animation
+  request_anim_frame(function() {
+    if (delta >= calibration_settings.dot_show_time) {
       if (
-        num_objects_shown === Math.floor(settings.num_dots / 3) ||
-        num_objects_shown === Math.floor(settings.num_dots * 2 / 3)
+        num_objects_shown === Math.floor(calibration_settings.num_trials / 3) ||
+        num_objects_shown ===
+          Math.floor(calibration_settings.num_trials * 2 / 3)
       ) {
         heatmap_data_x = store_data.gaze_x.slice(0);
         heatmap_data_y = store_data.gaze_y.slice(0);
@@ -807,7 +832,7 @@ function draw_dot_countdown(context, dot, color,settings) {
         return;
       }
     }
-    draw_dot_countdown(context, dot, color);
+    draw_dot_calibration(context, dot, color);
   });
 }
 
@@ -1256,21 +1281,22 @@ function consent_form_navigation() {
  * Loads Webgazer. Once loaded, starts the collect data procedure
  */
 function load_webgazer() {
-  $.getScript("../assets/js/webgazer.js").done(function(script, textStatus) {
-    initiate_webgazer();
-  });
-  // navigator.getUserMedia({video: true}, function() {
-  //     $.getScript("../assets/js/webgazer.js")
-  //         .done(function( script, textStatus ) {
-  //             initiate_webgazer();
-  //         })
-  //         .fail(function( jqxhr, settings, exception ) {
-  //             $( "div.log" ).text( "Triggered ajaxError handler." );
-  //         });
-  // }, function() {
-  //     document.getElementById("webcam-info").innerHTML = "";
-  //     document.getElementById("webcam-info").innerHTML += "No webcam found."
-  // });
+  navigator.getUserMedia(
+    { video: true },
+    function() {
+      $.getScript("../assets/js/webgazer.js")
+        .done(function(script, textStatus) {
+          initiate_webgazer();
+        })
+        .fail(function(jqxhr, settings, exception) {
+          $("div.log").text("Triggered ajaxError handler.");
+        });
+    },
+    function() {
+      document.getElementById("webcam-info").innerHTML = "";
+      document.getElementById("webcam-info").innerHTML += "No webcam found.";
+    }
+  );
 }
 
 /**
@@ -1287,25 +1313,28 @@ function initiate_webgazer() {
       if (curr_object === undefined || curr_object === null) return;
       if (collect_data === false) return;
 
-      if (elapsedTime - webgazer_time_stamp > 1000 / SAMPLING_RATE) {
-        webgazer_time_stamp = elapsedTime;
-        store_data.elapsedTime.push(elapsedTime);
-        if (current_task === "calibration") {
-          webgazer.addWatchListener(curr_object.x, curr_object.y);
-        }
-        else if (current_task === "pursuit") {
-          store_data.object_x.push(curr_object.cx);
-          store_data.object_y.push(curr_object.cy);
-        } else {
-          store_data.object_x.push(curr_object.x);
-          store_data.object_y.push(curr_object.y);
-        }
-        store_data.gaze_x.push(data.x);
-        store_data.gaze_y.push(data.y);
+      // add calibration point to model
+      if (
+        elapsedTime - webgazer_time_stamp > 1000 / SAMPLING_RATE &&
+        current_task === "calibration"
+      ) {
+        webgazer.addWatchListener(curr_object.x, curr_object.y);
       }
-      if (current_task === "bonus") {
+
+      // collect data from webgazer
+      webgazer_time_stamp = elapsedTime;
+      store_data.elapsedTime.push(elapsedTime);
+      if (current_task === "pursuit") {
+        store_data.object_x.push(curr_object.cx);
+        store_data.object_y.push(curr_object.cy);
+      } else if (current_task === "bonus") {
         loop_bonus_round();
+      } else {
+        store_data.object_x.push(curr_object.x);
+        store_data.object_y.push(curr_object.y);
       }
+      store_data.gaze_x.push(data.x);
+      store_data.gaze_y.push(data.y);
     })
     .begin()
     .showPredictionPoints(false);
@@ -1685,7 +1714,7 @@ function create_calibration_instruction() {
   var instruction = document.createElement("div");
   var instruction_guide1 =
     "This is the calibration step. A dot will appear on the screen every " +
-    calibration_settings.duration.toString() +
+    calibration_settings.dot_show_time.toString() +
     " seconds. There will be 39 dots in total, divided into 3 parts with breaks in between. The number on the dot represents the number of dots you have left.";
   // var instruction_guide2 = "If you have done this before, and saved a calibration file, you can upload the file to skip this step entirely.";
   delete_elem("consent_form");
@@ -1761,7 +1790,7 @@ function create_new_dot_calibration() {
   collect_data = true;
   hide_face_tracker();
   delete_elem("instruction");
-  if (num_objects_shown >= calibration_settings.num_dots) {
+  if (num_objects_shown >= calibration_settings.num_trials) {
     finish_calibration();
     return;
   }
@@ -1777,7 +1806,7 @@ function create_new_dot_calibration() {
   send_gaze_data_to_database();
   webgazer.addWatchListener(curr_object.x, curr_object.y);
   time_stamp = new Date().getTime();
-  draw_dot(context, curr_object, dark_color,calibration_settings);
+  draw_dot_calibration(context, curr_object, dark_color);
   num_objects_shown++;
 }
 
@@ -1893,13 +1922,15 @@ function loop_simple_paradigm() {
       clear_canvas();
       webgazer.resume();
       collect_data = true;
-      draw_dot(context, curr_object, dark_color, simple_paradigm_settings);
+      time_stamp = new Date().getTime();
+      draw_dot_simple(context, curr_object, dark_color);
       setTimeout(loop_simple_paradigm, simple_paradigm_settings.dot_show_time);
     }, simple_paradigm_settings.fixation_rest_time);
   }
 }
 
 function finish_simple_paradigm() {
+  clear_canvas();
   objects_array = [];
   num_objects_shown = 0;
   store_data.task = "simple";
@@ -1958,19 +1989,33 @@ function loop_pursuit_paradigm() {
   curr_object.cx = curr_object.x;
   curr_object.cy = curr_object.y;
   num_objects_shown++;
-  var dot = {
-    x: curr_object.cx,
-    y: curr_object.cy,
-    r: DEFAULT_DOT_RADIUS
-  };
-  draw_dot(context, dot, light_color, pursuit_paradigm_settings);
+  var dot = { x: curr_object.cx, y: curr_object.cy, r: DEFAULT_DOT_RADIUS };
+  var canvas = document.getElementById("canvas-overlay");
+  var context = canvas.getContext("2d");
+  clear_canvas();
+  draw_track(context, dot, dark_color);
+  //animated circle
+  context.lineWidth = 7;
+  context.beginPath();
+  context.strokeStyle = dark_color;
+  context.arc(dot.x, dot.y, dot.r, Math.PI / -2, Math.PI * 3 / 2, false);
+  context.stroke();
+  context.font = "20px Source Sans Pro";
+  context.fillStyle = dark_color;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(
+    pursuit_paradigm_settings.num_trials - num_objects_shown,
+    dot.x,
+    dot.y
+  );
   setTimeout(function() {
     time_stamp = null;
-    draw_moving_dot();
+    draw_moving_dot(dark_color);
   }, pursuit_paradigm_settings.fixation_rest_time);
 }
 
-function draw_moving_dot() {
+function draw_moving_dot(color) {
   if (current_task !== "pursuit_paradigm") return;
   var now = new Date().getTime(),
     dt = now - (time_stamp || now);
@@ -2002,7 +2047,26 @@ function draw_moving_dot() {
     var canvas = document.getElementById("canvas-overlay");
     var context = canvas.getContext("2d");
     clear_canvas();
-    draw_dot(context, dot, dark_color, pursuit_paradigm_settings);
+    //base circle
+    draw_track(context, dot, color);
+    //animated circle
+    context.lineWidth = 7;
+    context.beginPath();
+    context.strokeStyle = color;
+    context.arc(dot.x, dot.y, dot.r, Math.PI / -2, Math.PI * 3 / 2, false);
+    context.stroke();
+
+    //draw countdown number
+    context.font = "20px Source Sans Pro";
+    context.fillStyle = color;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(
+      pursuit_paradigm_settings.num_trials - num_objects_shown,
+      dot.x,
+      dot.y
+    );
+    //animation
     request_anim_frame(draw_moving_dot);
   }
 }
@@ -2269,9 +2333,15 @@ function bonus_round_share(link) {
   share_button_fb.addEventListener("click", function(e) {
     link = encodeURIComponent(link);
     share_link =
-        "'https://www.facebook.com/sharer/sharer.php?u=" +
-      encodeURIComponent("https://bucknell-hci.github.io/html/simple.html") +
-      "&amp;src=sdkpreparse'";
+      "https://www.facebook.com/dialog/share?" +
+      "app_id=140235746556932" +
+      "&quote=" +
+      encodeURIComponent(
+        "I made this drawing only with my eyes. You can make your own AND contribute to science at: https://bucknell-hci.github.io"
+      ) +
+      "&href=" +
+      link +
+      "&display=popup";
     window.open(share_link, "_blank");
   });
 
