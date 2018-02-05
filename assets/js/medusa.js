@@ -2301,15 +2301,9 @@ function bonus_round_share(link) {
   share_button_fb.addEventListener("click", function(e) {
     link = encodeURIComponent(link);
     share_link =
-      "https://www.facebook.com/dialog/share?" +
-      "app_id=140235746556932" +
-      "&quote=" +
-      encodeURIComponent(
-        "I made this drawing only with my eyes. You can make your own AND contribute to science at: https://bucknell-hci.github.io"
-      ) +
-      "&href=" +
-      link +
-      "&display=popup";
+        "'https://www.facebook.com/sharer/sharer.php?u=" +
+      encodeURIComponent("https://bucknell-hci.github.io/html/simple.html") +
+      "&amp;src=sdkpreparse'";
     window.open(share_link, "_blank");
   });
 
