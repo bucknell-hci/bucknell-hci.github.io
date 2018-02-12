@@ -65,7 +65,7 @@ var calibration_sprite_3 = [];
 var calibration_settings = {
   dot_show_time: 2000, // duration of a a singe position sampled
   method: "watch", // calibration method, either watch or click.
-  num_trials: 39, // the number of dots used for calibration
+  num_trials: 1, // the number of dots used for calibration
   distance: 200, // radius of acceptable gaze data around calibration dot
   position_array: [
     [0.2, 0.2],
@@ -533,7 +533,8 @@ var massvis_paradigm_settings = {
   spacing: 10,
   num_trials: 1,
   fixation_rest_time: 1500, // amount of time fixation cross will appear on screen with each trial, in ms
-  image_show_time: 10000 // amount of time the image will appear on screen with each trial, in ms
+  // image_show_time: 10000 // amount of time the image will appear on screen with each trial, in ms
+  image_show_time: 100 // amount of time the image will appear on screen with each trial, in ms
 };
 
 /************************************
@@ -1110,6 +1111,9 @@ function send_user_data_to_database(callback) {
   user.eye_sight = document.getElementById("vision").value;
   user.performance = document.getElementById("performance").value;
   user.comment = document.getElementById("comment").value;
+  if (user.comment === "") {
+    user.comment = "none";
+  }
 
   var params = {
     TableName: USER_TABLE_NAME,
@@ -1119,8 +1123,8 @@ function send_user_data_to_database(callback) {
       info: user
     }
   };
-  toggle_stylesheets();
-  docClient.put(params, function(err, data) {
+  // toggle_stylesheets();
+  docClient.put(params, function (err, data) {
     if (err) {
       console.log(
         "Unable to add item: " + "\n" + JSON.stringify(err, undefined, 2)
@@ -1129,8 +1133,9 @@ function send_user_data_to_database(callback) {
       console.log(
         "PutItem succeeded: " + "\n" + JSON.stringify(data, undefined, 2)
       );
-      window.location.href = "../index.html";
     }
+        callback();
+
   });
 }
 
@@ -1441,7 +1446,7 @@ function create_experiment_instruction() {
   if ($("#consent-yes").is(":checked")) {
     var instruction = document.createElement("div");
     var instruction_guide1 =
-      "For nearly half of your experiment, we'll be training your computer to guess where you're looking (and we'll show you what we think along the way!). We'll end the experiment by having you look at charts, graphs, and infographics to help us understand the way you process information. Finally, you'll have a chance to complete a searching challenge and share your results with your friends.";
+      "For nearly half of your experiment, we'll be training your computer to guess where you're looking (and we'll show you what we think along the way!). We'll end the experiment by having you look at charts, graphs, and infographics to help us understand the way you process information.";
     var instruction_guide2 =
       "We know focusing on the screen for a long time is tiring to the eyes, so there will be break in between sections.";
     var instruction_guide3 =
@@ -1463,7 +1468,7 @@ function create_experiment_instruction() {
       instruction_guide3 +
       "<p>" +
       "</header>" +
-      '<button class="form__button" type="button" onclick="create_webcam_instruction_glasses()">Start</button>';
+      '<button class="form__button" type="button" onclick="start_calibration()">Start</button>';
     document.body.appendChild(instruction);
     show_video_feed();
   }
@@ -1609,21 +1614,8 @@ function create_webcam_instruction_final_check() {
 /**
  * Create the survey
  */
-function create_survey(show_share_button) {
-  var share_button = "";
-  if (show_share_button === true) {
-    share_button =
-      "<div style='display: inline-block; vertical-align: bottom; background-color: #3b5998;' class='fb-share-button form__button' data-href='https://bucknell-hci.github.io/html/simple.html' data-layout='button' data-size='large' data-mobile-iframe='false'><a style='text-decoration: none!important; color:" +
-      background_color +
-      "!important;' class='fb-xfbml-parse-ignore' target='_blank' href='https://www.facebook.com/sharer/sharer.php?u=" +
-      encodeURIComponent("https://bucknell-hci.github.io/html/simple.html") +
-      "&amp;src=sdkpreparse'>Share on Facebook</a></div>" +
-      "<div style='display: inline-block; vertical-align: bottom; background-color: #1DA1F2;' class='form__button'><a style='text-decoration: none!important; color:" +
-      background_color +
-      "!important;' target='_blank' href='https://twitter.com/intent/tweet?text=" +
-      encodeURIComponent("https://https://bucknell-hci.github.io") +
-      "'>Share on Twitter</a></div>";
-  }
+function create_survey() {
+
   var age_options = "";
   var performnace_rating = "";
   for (var i = 6; i < 120; i++) {
@@ -1694,10 +1686,14 @@ function create_survey(show_share_button) {
     "</form>" +
     "<p id='survey_info' class='information'></p>" +
     "</br>" +
-    '<button class="form__button" type="button" onclick = \'send_user_data_to_database()\'> Bye Bye! </button>' +
-    // "<a class=\"form__button\" type=\"button\" onclick = \"download_calibration_data(this)\"> Download calibration data for later usage and bye </a>" +
-    share_button;
+    '<button class="form__button" type="button" onclick = \'send_user_data_to_database(finish_survey)\'> Bye Bye! </button>'
   document.body.appendChild(survey);
+}
+
+function finish_survey() {
+  delete_elem("survey");
+  paradigm = "bonus";
+  navigate_tasks();
 }
 
 /************************************
@@ -1820,10 +1816,10 @@ function finish_calibration() {
   send_gaze_data_to_database();
   webgazer.pause();
   collect_data = false;
-  paradigm = "simple";
+  paradigm = "survey";
   heatmap_data_x = store_data.gaze_x.slice(0);
   heatmap_data_y = store_data.gaze_y.slice(0);
-  reset_store_data(draw_heatmap("navigate_tasks"));
+  draw_heatmap("navigate_tasks");
 }
 
 function create_general_instruction(
@@ -1873,6 +1869,9 @@ function navigate_tasks() {
     case "bonus":
       create_bonus_round_instruction();
       break;
+    case "survey":
+      create_survey();
+      break;
     default:
       create_simple_instruction();
   }
@@ -1885,8 +1884,9 @@ function navigate_tasks() {
 function create_simple_instruction() {
   session_time = new Date().getTime().toString();
   reset_store_data();
+  clear_canvas();
   create_general_instruction(
-    "Dot viewing (2/4)",
+    "Dot viewing (3/4)",
     "Please look at the cross. When a dot appears, please look at it. You will have to repeat this process " +
       simple_paradigm_settings.num_trials.toString() +
       " times",
@@ -1948,7 +1948,7 @@ function create_pursuit_instruction() {
   reset_store_data();
   session_time = new Date().getTime().toString();
   create_general_instruction(
-    "Dot pursuing (3/4)",
+    "Dot pursuing (4/4)",
     "There will be a dot appearing on the screen. When it changes color, please follow it. You will have to repeat this procedure " +
       pursuit_paradigm_settings.num_trials.toString() +
       " times",
@@ -2073,7 +2073,7 @@ function finish_pursuit_paradigm() {
   store_data.task = "pursuit";
   store_data.description = "success";
   current_task = "pursuit_end";
-  paradigm = "massvis";
+  paradigm = "survey";
   webgazer.pause();
   collect_data = false;
   heatmap_data_x = store_data.gaze_x.slice(0);
@@ -2090,7 +2090,7 @@ function create_massvis_instruction() {
   reset_store_data();
   session_time = new Date().getTime().toString();
   create_general_instruction(
-    "Massvis (4/4)",
+    "Massvis (2/4)",
     "There will be a fixation cross appearing on the screen. Please look at it. <br> When the cross disappears, there will be a data visualization appearing on the screen. Feel free to look at whatever you like on the visualization.",
     "loop_massvis_paradigm()",
     "Start"
@@ -2182,9 +2182,11 @@ function draw_massvis_image() {
 
 function finish_massvis_paradigm() {
   clear_canvas();
+  objects_array = [];
+  num_objects_shown = 0;
   num_objects_shown = 0;
   store_data.task = "massvis";
-  paradigm = "bonus";
+  paradigm = "simple";
   webgazer.pause();
   collect_data = false;
   navigate_tasks();
@@ -2206,7 +2208,7 @@ function create_bonus_round_instruction() {
   );
   var instruction = document.getElementById("instruction");
   instruction.innerHTML +=
-    '<button class="form__button" type="button" onclick="delete_elem(\'instruction\'); hide_face_tracker(); create_survey(true)"> Skip </button>';
+    '<button class="form__button" type="button" onclick="  window.location.href = "../index.html";"> Skip </button>';
 }
 
 function create_heatmap_overlay() {
@@ -2415,10 +2417,8 @@ function finish_bonus_round() {
   delete_elem("heatmap-button");
   clear_canvas();
   num_objects_shown = 0;
-  store_data.task = "bonus";
-  paradigm = "bonus";
   webgazer.pause();
   collect_data = false;
-  create_survey(false);
   console.log("finish bonus paradigm");
+  window.location.href = "../index.html";
 }
