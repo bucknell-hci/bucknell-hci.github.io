@@ -4,7 +4,7 @@
 const TABLE_NAME = "GAZE_DATA"; // name of data table of gaze data
 const USER_TABLE_NAME = "USERS"; // name of data table of users
 const DEFAULT_DOT_RADIUS = 25;
-const SAMPLING_RATE = 4; // number of call to function once webgazer got data per second
+const SAMPLING_RATE = 5; // number of call to function once webgazer got data per second
 const DATA_COLLECTION_RATE = 60; // number of data collected per second.
 
 /************************************
@@ -65,7 +65,7 @@ var calibration_sprite_3 = [];
 var calibration_settings = {
   dot_show_time: 2000, // duration of a a singe position sampled
   method: "watch", // calibration method, either watch or click.
-  num_trials: 1, // the number of dots used for calibration
+  num_trials: 39, // the number of dots used for calibration
   distance: 200, // radius of acceptable gaze data around calibration dot
   position_array: [
     [0.2, 0.2],
@@ -98,8 +98,7 @@ var simple_paradigm_settings = {
     [0.5, 0.8],
     [0.8, 0.8]
   ],
-  // num_trials: 8,
-  num_trials: 1,
+  num_trials: 8,
   fixation_rest_time: 1500, // amount of time 'target' will appear on screen with each trial, in ms
   dot_show_time: 5000 // amount of time dot will appear on screen with each trial, in ms
 };
@@ -125,8 +124,7 @@ var pursuit_paradigm_settings = {
     { x: 0.8, y: 0.8, tx: 0.8, ty: 0.2 },
     { x: 0.8, y: 0.8, tx: 0.2, ty: 0.8 }
   ],
-  // num_trials: 12,
-  num_trials: 1,
+  num_trials: 12,
   dot_show_time: 3500,
   fixation_rest_time: 1500
 };
@@ -531,21 +529,11 @@ var massvis_paradigm_settings = {
     "../assets/images/vis/wsj99.png"
   ],
   spacing: 10,
-  num_trials: 1,
+  num_trials: 10,
   fixation_rest_time: 1500, // amount of time fixation cross will appear on screen with each trial, in ms
-  // image_show_time: 10000 // amount of time the image will appear on screen with each trial, in ms
-  image_show_time: 100 // amount of time the image will appear on screen with each trial, in ms
+  image_show_time: 10000 // amount of time the image will appear on screen with each trial, in ms
 };
 
-/************************************
- * BONUS ROUND PARAMETERS
- ************************************/
-var bonus_round_settings = {
-  image_show_time: 10000, // duration of a a singe position sampled
-  num_trials: 1,
-  image_array: ["../assets/images/bonus/panda 1.jpg"],
-  fixation_rest_time: 1500
-};
 
 /************************************
  * SETTING UP AWS
@@ -1468,7 +1456,7 @@ function create_experiment_instruction() {
       instruction_guide3 +
       "<p>" +
       "</header>" +
-      '<button class="form__button" type="button" onclick="start_calibration()">Start</button>';
+      '<button class="form__button" type="button" onclick="create_webcam_instruction_glasses()">Start</button>';
     document.body.appendChild(instruction);
     show_video_feed();
   }
@@ -1816,7 +1804,7 @@ function finish_calibration() {
   send_gaze_data_to_database();
   webgazer.pause();
   collect_data = false;
-  paradigm = "survey";
+  paradigm = "massvis";
   heatmap_data_x = store_data.gaze_x.slice(0);
   heatmap_data_y = store_data.gaze_y.slice(0);
   draw_heatmap("navigate_tasks");
@@ -2369,45 +2357,6 @@ function bonus_round_share(link) {
 
   document.body.appendChild(share_button_tw);
 }
-// /**
-//  * Draw bonus round images
-//  */
-// function draw_bonus_round_image() {
-//     clear_canvas();
-//     webgazer.resume();
-//     collect_data = true;
-//     var canvas = document.getElementById("canvas-overlay");
-//     var context = canvas.getContext("2d");
-//     var aspect_ratio = curr_object.width/curr_object.height;
-//     if (curr_object.width >= canvas.width || curr_object.height >= canvas.height) {
-//         var heightmajor_height = canvas.height - massvis_paradigm_settings.spacing * 2;
-//         var heightmajor_width = aspect_ratio * heightmajor_height;
-//         var widthmajor_width =  canvas.width - massvis_paradigm_settings.spacing * 2;
-//         var widthmajor_height = widthmajor_width / aspect_ratio;
-//         if (heightmajor_height < canvas.height && heightmajor_width < canvas.width) {
-//             curr_object.width = heightmajor_width;
-//             curr_object.height = heightmajor_height;
-//         } else if (widthmajor_width < canvas.width && widthmajor_height < canvas.height) {
-//             curr_object.width = widthmajor_width;
-//             curr_object.height = widthmajor_height;
-//         }
-//     }
-//     curr_object.onload =
-//         context.drawImage(curr_object,
-//             canvas.width / 2 - curr_object.width / 2,
-//             canvas.height / 2 - curr_object.height / 2,
-//             curr_object.width,
-//             curr_object.height
-//         );
-//
-//     setTimeout(function(){
-//         store_data.task = "bonus";
-//         paradigm = "bonus";
-//         heatmap_data_x = store_data.gaze_x.slice(0);
-//         heatmap_data_y = store_data.gaze_y.slice(0);
-//         draw_heatmap("loop_bonus_round");
-//     }, bonus_round_settings.image_show_time);
-// }
 
 function finish_bonus_round() {
   delete_elem("heatmap-overlay");
