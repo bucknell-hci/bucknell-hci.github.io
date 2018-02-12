@@ -2208,7 +2208,7 @@ function create_bonus_round_instruction() {
   );
   var instruction = document.getElementById("instruction");
   instruction.innerHTML +=
-    '<button class="form__button" type="button" onclick="  window.location.href = "../index.html";"> Skip </button>';
+    '<button class="form__button" type="button" onclick="window.location.href = "../index.html";"> Home </button>';
 }
 
 function create_heatmap_overlay() {
