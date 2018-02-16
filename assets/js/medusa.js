@@ -49,7 +49,7 @@ var objects_array = []; //array of dots
 var num_objects_shown = 0; //number of objects shown
 var paradigm = "simple"; // the paradigm to use for the test
 var possible_paradigm = ["simple", "pursuit", "heatmap", "massvis"];
-var screen_timeout = 30;
+var screen_timeout = 3000;
 var cam_width = 320;
 var cam_height = 240;
 var heatmap_data_x = [];
@@ -952,13 +952,6 @@ function draw_heatmap(function_name) {
       draw_fixation_cross(canvas.width * 0.8, canvas.height * 0.2, canvas);
       draw_fixation_cross(canvas.width * 0.2, canvas.height * 0.8, canvas);
       draw_fixation_cross(canvas.width * 0.8, canvas.height * 0.8, canvas);
-      // for (i = 0; i < pursuit_paradigm_settings.position_array.length; i++) {
-      //     draw_dashed_line(canvas.width * pursuit_paradigm_settings.position_array[i].x,
-      //                     canvas.height * pursuit_paradigm_settings.position_array[i].y,
-      //                     canvas.width * pursuit_paradigm_settings.position_array[i].ty,
-      //                     canvas.height * pursuit_paradigm_settings.position_array[i].y,
-      //                     context);
-      // }
     } else if (
       current_task === "calibration" ||
       current_task === "validation"
@@ -1212,7 +1205,7 @@ function create_consent_form() {
     "<p class='information'><b>Why we are doing this research:</b> We are trying to examine the feasibility of using consumer-grade webcams to conduct eye-tracking experiments to replace traditional eye-tracking method.</p>" +
     "<p class='information'><b>What you will have to do:</b> You will be presented with a series of tasks that involves looking at some dots and data visualizations .</p>" +
     "<p class='information'><b>Privacy and Data collection:</b> We will not ask you for your name. We will not store any videos or images from the webcam. The only data from your webcam that we are collecting is predicted coordinates of your gaze made by webgazer. All data will be stored in a secure server.</p>" +
-    "<p class='information'><b>Duration:</b> Approximately 15 minutes.</p>" +
+    "<p class='information'><b>Duration:</b> Approximately 10 minutes.</p>" +
     "<p class='information'><b>Taking part is voluntary:</b> You are free to leave the experiment at any time. If you refuse to be in the experiment or stop participating, there will no penalty or loss of benefits to which you are otherwise entitled.</p>" +
     "<p class='information'><b>If you have questions:</b> You may contact Professor Evan Peck at <a href='mailto:evan.peck@bucknell.edu'>evan.peck@bucknell.edu</a>. If you have questions about your rights as a research participant, please contact Matthew Slater, Bucknell University's IRB Chair at 570.577.2767 or at <a href='mailto:matthew.slater@bucknell.edu'>matthew.slater@bucknell.edu</a></p>" +
     "</div>" +
@@ -1697,7 +1690,7 @@ function create_calibration_instruction() {
   var instruction = document.createElement("div");
   var instruction_guide1 =
     "This is the calibration step. A dot will appear on the screen every " +
-    calibration_settings.dot_show_time.toString() +
+    (calibration_settings.dot_show_time/1000).toString() +
     " seconds. There will be 39 dots in total, divided into 3 parts with breaks in between. The number on the dot represents the number of dots you have left.";
   // var instruction_guide2 = "If you have done this before, and saved a calibration file, you can upload the file to skip this step entirely.";
   delete_elem("consent_form");
@@ -2078,7 +2071,7 @@ function create_massvis_instruction() {
   reset_store_data();
   session_time = new Date().getTime().toString();
   create_general_instruction(
-    "Massvis (2/4)",
+    "How do we see information? (2/4)",
     "There will be a fixation cross appearing on the screen. Please look at it. <br> When the cross disappears, there will be a data visualization appearing on the screen. Feel free to look at whatever you like on the visualization.",
     "loop_massvis_paradigm()",
     "Start"
