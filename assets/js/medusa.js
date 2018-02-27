@@ -4,7 +4,7 @@
 const TABLE_NAME = "GAZE_DATA"; // name of data table of gaze data
 const USER_TABLE_NAME = "USERS"; // name of data table of users
 const DEFAULT_DOT_RADIUS = 25;
-const SAMPLING_RATE = 5; // number of call to function once webgazer got data per second
+const SAMPLING_RATE = 2; // number of call to function once webgazer got data per second
 const DATA_COLLECTION_RATE = 60; // number of data collected per second.
 
 /************************************
@@ -49,7 +49,7 @@ var objects_array = []; //array of dots
 var num_objects_shown = 0; //number of objects shown
 var paradigm = "simple"; // the paradigm to use for the test
 var possible_paradigm = ["simple", "pursuit", "heatmap", "massvis"];
-var screen_timeout = 30;
+var screen_timeout = 3000;
 var cam_width = 320;
 var cam_height = 240;
 var heatmap_data_x = [];
@@ -952,13 +952,6 @@ function draw_heatmap(function_name) {
       draw_fixation_cross(canvas.width * 0.8, canvas.height * 0.2, canvas);
       draw_fixation_cross(canvas.width * 0.2, canvas.height * 0.8, canvas);
       draw_fixation_cross(canvas.width * 0.8, canvas.height * 0.8, canvas);
-      // for (i = 0; i < pursuit_paradigm_settings.position_array.length; i++) {
-      //     draw_dashed_line(canvas.width * pursuit_paradigm_settings.position_array[i].x,
-      //                     canvas.height * pursuit_paradigm_settings.position_array[i].y,
-      //                     canvas.width * pursuit_paradigm_settings.position_array[i].ty,
-      //                     canvas.height * pursuit_paradigm_settings.position_array[i].y,
-      //                     context);
-      // }
     } else if (
       current_task === "calibration" ||
       current_task === "validation"
@@ -1212,7 +1205,7 @@ function create_consent_form() {
     "<p class='information'><b>Why we are doing this research:</b> We are trying to examine the feasibility of using consumer-grade webcams to conduct eye-tracking experiments to replace traditional eye-tracking method.</p>" +
     "<p class='information'><b>What you will have to do:</b> You will be presented with a series of tasks that involves looking at some dots and data visualizations .</p>" +
     "<p class='information'><b>Privacy and Data collection:</b> We will not ask you for your name. We will not store any videos or images from the webcam. The only data from your webcam that we are collecting is predicted coordinates of your gaze made by webgazer. All data will be stored in a secure server.</p>" +
-    "<p class='information'><b>Duration:</b> Approximately 15 minutes.</p>" +
+    "<p class='information'><b>Duration:</b> Approximately 10 minutes.</p>" +
     "<p class='information'><b>Taking part is voluntary:</b> You are free to leave the experiment at any time. If you refuse to be in the experiment or stop participating, there will no penalty or loss of benefits to which you are otherwise entitled.</p>" +
     "<p class='information'><b>If you have questions:</b> You may contact Professor Evan Peck at <a href='mailto:evan.peck@bucknell.edu'>evan.peck@bucknell.edu</a>. If you have questions about your rights as a research participant, please contact Matthew Slater, Bucknell University's IRB Chair at 570.577.2767 or at <a href='mailto:matthew.slater@bucknell.edu'>matthew.slater@bucknell.edu</a></p>" +
     "</div>" +
@@ -1456,45 +1449,22 @@ function create_experiment_instruction() {
       instruction_guide3 +
       "<p>" +
       "</header>" +
-      '<button class="form__button" type="button" onclick="create_webcam_instruction_glasses()">Start</button>';
+      '<button class="form__button" type="button" onclick="create_webcam_instruction_perfect()">Start</button>';
     document.body.appendChild(instruction);
     show_video_feed();
   }
 }
 
-function create_webcam_instruction_glasses() {
+function create_webcam_instruction_perfect() {
   create_general_instruction(
-    "Glasses",
-    "Firstly, glasses. The program can't identify your eyes or your face if you wear glasses. Therefore, if you wear glasses, please take them off before continue.",
-    "create_webcam_instruction_uneven(); delete_elem('guide-img');",
-    "Next"
+    "The one thing you need to know!",
+    "It is extremely crucial that the program can identify your eyes accurately. How do you know that? The green line should fit your face and your eyes correctly.",
+    "create_webcam_instruction_broken(); delete_elem('guide-img');",
+    "Continue"
   );
   var guide = new Image();
-  guide.src = "../assets/images/guide/Glasses.png";
+  guide.src = "../assets/images/guide/Perfect.png";
   guide.id = "guide-img";
-  guide.style.display = "block";
-  guide.style.position = "fixed";
-  guide.style.top = "65%";
-  guide.style.left = "calc(50% - 400px)";
-  guide.style.zIndex = 13;
-  guide.width = cam_width;
-  document.body.appendChild(guide);
-  var video = document.getElementById("webgazerVideoFeed");
-  video.style.left = "calc(50% + 25px)";
-  var overlay = document.getElementById("face_tracker");
-  overlay.style.left = "calc(50% + 25px)";
-}
-
-function create_webcam_instruction_uneven() {
-  create_general_instruction(
-    "Lighting conditions",
-    "Secondly, lighting conditions. This is rather tricky, but the main idea is that you should make sure that you have even lighting across your face. Ideally, the light source should be behind or in front you.",
-    "create_webcam_instruction_reset(); delete_elem('guide-img');",
-    "Next"
-  );
-  var guide = new Image();
-  guide.id = "guide-img";
-  guide.src = "../assets/images/guide/Uneven.png";
   guide.style.display = "block";
   guide.style.position = "fixed";
   guide.style.top = "65%";
@@ -1531,9 +1501,78 @@ function create_webcam_instruction_broken() {
   overlay.style.left = "calc(50% + 25px)";
 }
 
+function create_webcam_instruction_glasses() {
+  create_general_instruction(
+    "Glasses",
+    "Firstly, glasses. The program can't identify your eyes or your face if you wear glasses. Therefore, if you wear glasses, please take them off before continue.",
+    "create_webcam_instruction_uneven(); delete_elem('guide-img');",
+    "Next"
+  );
+  var guide = new Image();
+  guide.src = "../assets/images/guide/Glasses.png";
+  guide.id = "guide-img";
+  guide.style.display = "block";
+  guide.style.position = "fixed";
+  guide.style.top = "65%";
+  guide.style.left = "calc(50% - 400px)";
+  guide.style.zIndex = 13;
+  guide.width = cam_width;
+  document.body.appendChild(guide);
+  var video = document.getElementById("webgazerVideoFeed");
+  video.style.left = "calc(50% + 25px)";
+  var overlay = document.getElementById("face_tracker");
+  overlay.style.left = "calc(50% + 25px)";
+}
+
+function create_webcam_instruction_uneven() {
+  create_general_instruction(
+    "Lighting conditions",
+    "Secondly, lighting conditions. This is rather tricky, but the main idea is that you should make sure that you have even lighting across your face. Ideally, the light source should be behind or in front you.",
+    "create_webcam_instruction_bookstack(); delete_elem('guide-img');",
+    "Next"
+  );
+  var guide = new Image();
+  guide.id = "guide-img";
+  guide.src = "../assets/images/guide/Uneven.png";
+  guide.style.display = "block";
+  guide.style.position = "fixed";
+  guide.style.top = "65%";
+  guide.style.left = "calc(50% - 400px)";
+  guide.style.zIndex = 13;
+  guide.width = cam_width;
+  document.body.appendChild(guide);
+  var video = document.getElementById("webgazerVideoFeed");
+  video.style.left = "calc(50% + 25px)";
+  var overlay = document.getElementById("face_tracker");
+  overlay.style.left = "calc(50% + 25px)";
+}
+
+function create_webcam_instruction_bookstack() {
+  create_general_instruction(
+    "Books are always helpful",
+    "We have founded that using a stack of books or something solid to stablize your head during the experiment produces much more accurate result.",
+    "create_webcam_instruction_reset(); delete_elem('guide-img');",
+    "Continue"
+  );
+  var guide = new Image();
+  guide.src = "../assets/images/guide/Bookstack.png";
+  guide.id = "guide-img";
+  guide.style.display = "block";
+  guide.style.position = "fixed";
+  guide.style.top = "65%";
+  guide.style.left = "calc(50% - 400px)";
+  guide.style.zIndex = 13;
+  guide.width = cam_width;
+  document.body.appendChild(guide);
+  var video = document.getElementById("webgazerVideoFeed");
+  video.style.left = "calc(50% + 25px)";
+  var overlay = document.getElementById("face_tracker");
+  overlay.style.left = "calc(50% + 25px)";
+}
+
 function create_webcam_instruction_reset() {
   create_general_instruction(
-    "A final touch",
+    "How to recalibrate again",
     "Now, after you have fixed everything, you should try to calibrate again. To do that, move your face away completely from the webcam and then move back to in front of the webcam. The program will recalibrate and it should be able to indentify your face correctly now. If it is not, please perform this step again.",
     "create_webcam_instruction_final_check(); delete_elem('guide-img');",
     "Next"
@@ -1554,31 +1593,10 @@ function create_webcam_instruction_reset() {
   overlay.style.left = "calc(50% + 25px)";
 }
 
-function create_webcam_instruction_perfect() {
-  create_general_instruction(
-    "A crucial point",
-    "It is extremely crucial that the program can identify your eyes accurately. How do you know that? The green line should fit your face and your eyes correctly.",
-    "create_webcam_instruction_broken(); delete_elem('guide-img');",
-    "Continue"
-  );
-  var guide = new Image();
-  guide.src = "../assets/images/guide/Perfect.png";
-  guide.id = "guide-img";
-  guide.style.display = "block";
-  guide.style.position = "fixed";
-  guide.style.top = "65%";
-  guide.style.left = "calc(50% - 400px)";
-  guide.style.zIndex = 13;
-  guide.width = cam_width;
-  document.body.appendChild(guide);
-  var video = document.getElementById("webgazerVideoFeed");
-  video.style.left = "calc(50% + 25px)";
-  var overlay = document.getElementById("face_tracker");
-  overlay.style.left = "calc(50% + 25px)";
-}
+
 function create_webcam_instruction_final_check() {
   create_general_instruction(
-    "A few other tips.",
+    "Final words",
     "When you progress through the experiment, try to maintain your head position, and recalibrate whenever you think the program fails to identify your face and your eyes. Again, we really appreciate your participation.",
     "create_calibration_instruction(); delete_elem('guide-img');",
     "Continue"
@@ -1697,7 +1715,7 @@ function create_calibration_instruction() {
   var instruction = document.createElement("div");
   var instruction_guide1 =
     "This is the calibration step. A dot will appear on the screen every " +
-    calibration_settings.dot_show_time.toString() +
+    (calibration_settings.dot_show_time/1000).toString() +
     " seconds. There will be 39 dots in total, divided into 3 parts with breaks in between. The number on the dot represents the number of dots you have left.";
   // var instruction_guide2 = "If you have done this before, and saved a calibration file, you can upload the file to skip this step entirely.";
   delete_elem("consent_form");
@@ -2078,7 +2096,7 @@ function create_massvis_instruction() {
   reset_store_data();
   session_time = new Date().getTime().toString();
   create_general_instruction(
-    "Massvis (2/4)",
+    "How do we see information? (2/4)",
     "There will be a fixation cross appearing on the screen. Please look at it. <br> When the cross disappears, there will be a data visualization appearing on the screen. Feel free to look at whatever you like on the visualization.",
     "loop_massvis_paradigm()",
     "Start"
