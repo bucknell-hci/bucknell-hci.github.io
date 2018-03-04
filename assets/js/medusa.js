@@ -1269,7 +1269,7 @@ function load_webgazer() {
   navigator.getUserMedia(
     { video: true },
     function() {
-      $.getScript("../assets/js/webgazer.js")
+      $.getScript("./assets/js/webgazer.js")
         .done(function(script, textStatus) {
           initiate_webgazer();
         })
