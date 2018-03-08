@@ -1257,10 +1257,11 @@ function create_consent_form() {
   var form = document.createElement("div");
   form.id = "consent_form";
   form.className += "overlay-div";
+  document.body.style.overflow = "hidden";
   form.innerHTML +=
     '<header class="form__header">' +
     '<h2 class="form__title">Consent form</h2>' +
-    "<div style='overflow-y: scroll; max-height: 30vh;'>" +
+    "<div style='overflow-y: scroll; max-height: 40vh;'>" +
     "<p class='information'><b>Why we are doing this research:</b> We are trying to examine the feasibility of using consumer-grade webcams to conduct eye-tracking experiments to replace traditional eye-tracking method.</p>" +
     "<p class='information'><b>What you will have to do:</b> You will be presented with a series of tasks that involves looking at some dots and data visualizations .</p>" +
     "<p class='information'><b>Privacy and Data collection:</b> We will not ask you for your name. We will not store any videos or images from the webcam. The only data from your webcam that we are collecting is predicted coordinates of your gaze made by webgazer. All data will be stored in a secure server.</p>" +
