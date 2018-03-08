@@ -107,22 +107,81 @@ var simple_paradigm_settings = {
  * PURSUIT_PARADIGM PARAMETERS
  ************************************/
 var pursuit_paradigm_settings = {
-  position_array: [
-    { x: 0.2, y: 0.2, tx: 0.8, ty: 0.2 },
-    { x: 0.2, y: 0.2, tx: 0.2, ty: 0.8 },
-    { x: 0.2, y: 0.2, tx: 0.8, ty: 0.8 },
+  position_array: [{
+      x: 0.2,
+      y: 0.2,
+      tx: 0.8,
+      ty: 0.2
+    },
+    {
+      x: 0.2,
+      y: 0.2,
+      tx: 0.2,
+      ty: 0.8
+    },
+    {
+      x: 0.2,
+      y: 0.2,
+      tx: 0.8,
+      ty: 0.8
+    },
 
-    { x: 0.8, y: 0.2, tx: 0.2, ty: 0.2 },
-    { x: 0.8, y: 0.2, tx: 0.2, ty: 0.8 },
-    { x: 0.8, y: 0.2, tx: 0.8, ty: 0.8 },
+    {
+      x: 0.8,
+      y: 0.2,
+      tx: 0.2,
+      ty: 0.2
+    },
+    {
+      x: 0.8,
+      y: 0.2,
+      tx: 0.2,
+      ty: 0.8
+    },
+    {
+      x: 0.8,
+      y: 0.2,
+      tx: 0.8,
+      ty: 0.8
+    },
 
-    { x: 0.2, y: 0.8, tx: 0.2, ty: 0.2 },
-    { x: 0.2, y: 0.8, tx: 0.8, ty: 0.2 },
-    { x: 0.2, y: 0.8, tx: 0.8, ty: 0.8 },
+    {
+      x: 0.2,
+      y: 0.8,
+      tx: 0.2,
+      ty: 0.2
+    },
+    {
+      x: 0.2,
+      y: 0.8,
+      tx: 0.8,
+      ty: 0.2
+    },
+    {
+      x: 0.2,
+      y: 0.8,
+      tx: 0.8,
+      ty: 0.8
+    },
 
-    { x: 0.8, y: 0.8, tx: 0.2, ty: 0.2 },
-    { x: 0.8, y: 0.8, tx: 0.8, ty: 0.2 },
-    { x: 0.8, y: 0.8, tx: 0.2, ty: 0.8 }
+    {
+      x: 0.8,
+      y: 0.8,
+      tx: 0.2,
+      ty: 0.2
+    },
+    {
+      x: 0.8,
+      y: 0.8,
+      tx: 0.8,
+      ty: 0.2
+    },
+    {
+      x: 0.8,
+      y: 0.8,
+      tx: 0.2,
+      ty: 0.8
+    }
   ],
   num_trials: 12,
   dot_show_time: 3500,
@@ -623,7 +682,7 @@ function create_overlay() {
   canvas.height = window.innerHeight;
   canvas.style.backgroundColor = background_color;
   // add the canvas to web page
-  window.addEventListener("resize", function() {
+  window.addEventListener("resize", function () {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   });
@@ -670,7 +729,7 @@ function delete_elem(id) {
  * @param {*} y - y_coordinate of the center
  * @param {*} r - radius
  */
-var Dot = function(x, y, r) {
+var Dot = function (x, y, r) {
   r = typeof r !== "undefined" ? r : DEFAULT_DOT_RADIUS;
   this.x = x;
   this.y = y;
@@ -743,7 +802,7 @@ function draw_dot_simple(context, dot, color) {
     dot.y
   );
   //animation
-  request_anim_frame(function() {
+  request_anim_frame(function () {
     if (delta >= simple_paradigm_settings.dot_show_time) {
       return;
     } else {
@@ -804,12 +863,12 @@ function draw_dot_calibration(context, dot, color) {
     dot.y
   );
   //animation
-  request_anim_frame(function() {
+  request_anim_frame(function () {
     if (delta >= calibration_settings.dot_show_time) {
       if (
         num_objects_shown === Math.floor(calibration_settings.num_trials / 3) ||
         num_objects_shown ===
-          Math.floor(calibration_settings.num_trials * 2 / 3)
+        Math.floor(calibration_settings.num_trials * 2 / 3)
       ) {
         heatmap_data_x = store_data.gaze_x.slice(0);
         heatmap_data_y = store_data.gaze_y.slice(0);
@@ -845,14 +904,14 @@ function reset_store_data(callback) {
  * A backward compatibility version of request animation frame
  * @author http://www.html5canvastutorials.com/advanced/html5-canvas-animation-stage/
  */
-window.request_anim_frame = (function(callback) {
+window.request_anim_frame = (function (callback) {
   return (
     window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
     window.oRequestAnimationFrame ||
     window.msRequestAnimationFrame ||
-    function(callback) {
+    function (callback) {
       window.setTimeout(callback, 1000 / 30);
     }
   );
@@ -893,7 +952,7 @@ function draw_heatmap(function_name) {
     "</header>";
   document.body.appendChild(instruction);
 
-  setTimeout(function() {
+  setTimeout(function () {
     delete_elem("instruction");
     var canvas = document.createElement("canvas");
     canvas.id = "heatmap-overlay";
@@ -916,15 +975,15 @@ function draw_heatmap(function_name) {
     button.innerHTML = "Next";
     button.style.position = "absolute";
     button.style.zIndex = 99;
-    button.addEventListener("click", function() {
+    button.addEventListener("click", function () {
       window[function_name]();
       delete_elem("heatmap-button");
       delete_elem("heatmap-overlay");
     });
-    button.onmouseover = function() {
+    button.onmouseover = function () {
       button.style.opacity = 1;
     };
-    button.onmouseout = function() {
+    button.onmouseout = function () {
       button.style.opacity = 0.5;
     };
     document.body.appendChild(button);
@@ -978,7 +1037,7 @@ function draw_heatmap(function_name) {
       }
       canvas = document.getElementById("canvas-overlay");
       context = canvas.getContext("2d");
-      curr_object.onload = function() {
+      curr_object.onload = function () {
         context.drawImage(
           curr_object,
           canvas.width / 2 - curr_object.width / 2,
@@ -1043,7 +1102,7 @@ function send_gaze_data_to_database(callback) {
       info: temp_store_data
     }
   };
-  docClient.put(params, function(err, data) {
+  docClient.put(params, function (err, data) {
     if (err) {
       console.log(
         "Unable to add item: " + "\n" + JSON.stringify(err, undefined, 2)
@@ -1063,11 +1122,11 @@ function send_gaze_data_to_database(callback) {
 function send_user_data_to_database(callback) {
   session_time = new Date().getTime().toString();
   var empty_count = 0;
-  $("select").each(function(i) {
+  $("select").each(function (i) {
     if (this.value === "") {
       empty_count += 1;
       this.style.boxShadow = "0 0 5px 1px var(--submit-color-darker)";
-      this.onfocus = function() {
+      this.onfocus = function () {
         this.style.boxShadow = "none";
       };
     }
@@ -1115,7 +1174,7 @@ function send_user_data_to_database(callback) {
         "PutItem succeeded: " + "\n" + JSON.stringify(data, undefined, 2)
       );
     }
-        callback();
+    callback();
 
   });
 }
@@ -1273,11 +1332,11 @@ function load_webgazer() {
         .done(function(script, textStatus) {
           initiate_webgazer();
         })
-        .fail(function(jqxhr, settings, exception) {
+        .fail(function (jqxhr, settings, exception) {
           $("div.log").text("Triggered ajaxError handler.");
         });
     },
-    function() {
+    function () {
       document.getElementById("webcam-info").innerHTML = "";
       document.getElementById("webcam-info").innerHTML += "No webcam found.";
     }
@@ -1293,7 +1352,7 @@ function initiate_webgazer() {
     .clearData()
     .setRegression("ridge")
     .setTracker("clmtrackr")
-    .setGazeListener(function(data, elapsedTime) {
+    .setGazeListener(function (data, elapsedTime) {
       if (data === null) return;
       if (curr_object === undefined || curr_object === null) return;
       if (collect_data === false) return;
@@ -1358,20 +1417,30 @@ function createID() {
 function create_gaze_database() {
   var params = {
     TableName: TABLE_NAME,
-    KeySchema: [
-      { AttributeName: "gazer_id", KeyType: "HASH" },
-      { AttributeName: "time_collected", KeyType: "RANGE" } //Sort key
+    KeySchema: [{
+        AttributeName: "gazer_id",
+        KeyType: "HASH"
+      },
+      {
+        AttributeName: "time_collected",
+        KeyType: "RANGE"
+      } //Sort key
     ],
-    AttributeDefinitions: [
-      { AttributeName: "gazer_id", AttributeType: "S" },
-      { AttributeName: "time_collected", AttributeType: "S" }
+    AttributeDefinitions: [{
+        AttributeName: "gazer_id",
+        AttributeType: "S"
+      },
+      {
+        AttributeName: "time_collected",
+        AttributeType: "S"
+      }
     ],
     ProvisionedThroughput: {
       ReadCapacityUnits: 20,
       WriteCapacityUnits: 20
     }
   };
-  dynamodb.createTable(params, function(err, data) {
+  dynamodb.createTable(params, function (err, data) {
     if (err) {
       console.log(
         "Unable to create table: " + "\n" + JSON.stringify(err, undefined, 2)
@@ -1390,20 +1459,30 @@ function create_gaze_database() {
 function create_user_database() {
   var params = {
     TableName: USER_TABLE_NAME,
-    KeySchema: [
-      { AttributeName: "gazer_id", KeyType: "HASH" },
-      { AttributeName: "time_collected", KeyType: "RANGE" } //Sort key
+    KeySchema: [{
+        AttributeName: "gazer_id",
+        KeyType: "HASH"
+      },
+      {
+        AttributeName: "time_collected",
+        KeyType: "RANGE"
+      } //Sort key
     ],
-    AttributeDefinitions: [
-      { AttributeName: "gazer_id", AttributeType: "S" },
-      { AttributeName: "time_collected", AttributeType: "S" }
+    AttributeDefinitions: [{
+        AttributeName: "gazer_id",
+        AttributeType: "S"
+      },
+      {
+        AttributeName: "time_collected",
+        AttributeType: "S"
+      }
     ],
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5
     }
   };
-  dynamodb.createTable(params, function(err, data) {
+  dynamodb.createTable(params, function (err, data) {
     if (err) {
       console.log(
         "Unable to create table: " + "\n" + JSON.stringify(err, undefined, 2)
@@ -1655,7 +1734,11 @@ function create_survey() {
     '<option value="" disabled selected> What is your gender? </option>' +
     "<option value='male'> Male </option>" +
     "<option value='female'> Female </option>" +
-    "<option value='other'> Other </option>" +
+    "<option value='transgenderfemale'> Transgender Female </option>" +
+    "<option value='transgendermale'> Transgender Male </option>" +
+    "<option value='gendervariant'> Gender Variant/Non-Conforming </option>" +
+    "<option value='notlisted'> Not Listed </option>" +
+    "<option value='notanswer'> Prefer not to Answer </option>" +
     "</select>" +
     "</br>" +
     "<select id = 'main_country' required>" +
@@ -1692,7 +1775,7 @@ function create_survey() {
     "</form>" +
     "<p id='survey_info' class='information'></p>" +
     "</br>" +
-    '<button class="form__button" type="button" onclick = \'send_user_data_to_database(finish_survey)\'> Bye Bye! </button>'
+    '<button class="form__button" type="button" onclick = \'send_user_data_to_database(finish_survey)\'> Submit and draw an awesome image with your eyes! </button>'
   document.body.appendChild(survey);
 }
 
@@ -1715,7 +1798,7 @@ function create_calibration_instruction() {
   var instruction = document.createElement("div");
   var instruction_guide1 =
     "This is the calibration step. A dot will appear on the screen every " +
-    (calibration_settings.dot_show_time/1000).toString() +
+    (calibration_settings.dot_show_time / 1000).toString() +
     " seconds. There will be 39 dots in total, divided into 3 parts with breaks in between. The number on the dot represents the number of dots you have left.";
   // var instruction_guide2 = "If you have done this before, and saved a calibration file, you can upload the file to skip this step entirely.";
   delete_elem("consent_form");
@@ -1894,8 +1977,8 @@ function create_simple_instruction() {
   create_general_instruction(
     "Dot viewing (3/4)",
     "Please look at the cross. When a dot appears, please look at it. You will have to repeat this process " +
-      simple_paradigm_settings.num_trials.toString() +
-      " times",
+    simple_paradigm_settings.num_trials.toString() +
+    " times",
     "loop_simple_paradigm()",
     "Start"
   );
@@ -1920,7 +2003,7 @@ function loop_simple_paradigm() {
     webgazer.pause();
     collect_data = false;
     draw_fixation_cross(canvas.width * 0.5, canvas.height * 0.5, canvas);
-    setTimeout(function() {
+    setTimeout(function () {
       clear_canvas();
       webgazer.resume();
       collect_data = true;
@@ -1956,8 +2039,8 @@ function create_pursuit_instruction() {
   create_general_instruction(
     "Dot pursuing (4/4)",
     "There will be a dot appearing on the screen. When it changes color, please follow it. You will have to repeat this procedure " +
-      pursuit_paradigm_settings.num_trials.toString() +
-      " times",
+    pursuit_paradigm_settings.num_trials.toString() +
+    " times",
     "loop_pursuit_paradigm()",
     "Start"
   );
@@ -1976,7 +2059,9 @@ function loop_pursuit_paradigm() {
   clear_canvas();
   current_task = "pursuit_paradigm";
   if (objects_array.length === 0) {
-    var temp = { arr: pursuit_paradigm_settings.position_array };
+    var temp = {
+      arr: pursuit_paradigm_settings.position_array
+    };
     var obj = $.extend(true, {}, temp);
     objects_array = obj.arr;
     objects_array = shuffle(objects_array);
@@ -1991,7 +2076,11 @@ function loop_pursuit_paradigm() {
   curr_object.cx = curr_object.x;
   curr_object.cy = curr_object.y;
   num_objects_shown++;
-  var dot = { x: curr_object.cx, y: curr_object.cy, r: DEFAULT_DOT_RADIUS };
+  var dot = {
+    x: curr_object.cx,
+    y: curr_object.cy,
+    r: DEFAULT_DOT_RADIUS
+  };
   var canvas = document.getElementById("canvas-overlay");
   var context = canvas.getContext("2d");
   clear_canvas();
@@ -2011,7 +2100,7 @@ function loop_pursuit_paradigm() {
     dot.x,
     dot.y
   );
-  setTimeout(function() {
+  setTimeout(function () {
     time_stamp = null;
     draw_moving_dot(dark_color);
   }, pursuit_paradigm_settings.fixation_rest_time);
@@ -2170,13 +2259,13 @@ function draw_massvis_image() {
   context.textBaseline = "middle";
   context.fillText(
     num_objects_shown.toString() +
-      " / " +
-      massvis_paradigm_settings.num_trials.toString(),
+    " / " +
+    massvis_paradigm_settings.num_trials.toString(),
     canvas.width - 50,
     25
   );
 
-  setTimeout(function() {
+  setTimeout(function () {
     store_data.task = "massvis";
     paradigm = "massvis";
     heatmap_data_x = store_data.gaze_x.slice(0);
@@ -2243,16 +2332,16 @@ function create_heatmap_overlay() {
   button.innerHTML = "Done";
   button.style.position = "absolute";
   button.style.zIndex = 99;
-  button.addEventListener("click", function() {
+  button.addEventListener("click", function () {
     window[function_name](canvas);
     webgazer.pause();
     collect_data = false;
     delete_elem("heatmap-button");
   });
-  button.onmouseover = function() {
+  button.onmouseover = function () {
     button.style.opacity = 1;
   };
-  button.onmouseout = function() {
+  button.onmouseout = function () {
     button.style.opacity = 0.5;
   };
   document.body.appendChild(button);
@@ -2290,7 +2379,7 @@ function upload_to_imgur(canvas) {
     data: form
   };
 
-  $.ajax(settings).done(function(response) {
+  $.ajax(settings).done(function (response) {
     var link = JSON.parse(response).data.link;
     bonus_round_share(link);
     store_data.description = link;
@@ -2314,13 +2403,13 @@ function bonus_round_share(link) {
   button.innerHTML = "Next";
   button.style.position = "absolute";
   button.style.zIndex = 99;
-  button.addEventListener("click", function() {
+  button.addEventListener("click", function () {
     finish_bonus_round();
   });
-  button.onmouseover = function() {
+  button.onmouseover = function () {
     button.style.opacity = 1;
   };
-  button.onmouseout = function() {
+  button.onmouseout = function () {
     button.style.opacity = 0.5;
   };
   document.body.appendChild(button);
@@ -2334,7 +2423,7 @@ function bonus_round_share(link) {
   share_button_fb.innerHTML = "Share on Facebook";
   share_button_fb.style.position = "absolute";
   share_button_fb.style.zIndex = 99;
-  share_button_fb.addEventListener("click", function(e) {
+  share_button_fb.addEventListener("click", function (e) {
     link = encodeURIComponent(link);
     share_link =
       "https://www.facebook.com/dialog/share?" +
@@ -2360,7 +2449,7 @@ function bonus_round_share(link) {
   share_button_tw.innerHTML = "Share on Twitter";
   share_button_tw.style.position = "absolute";
   share_button_tw.style.zIndex = 99;
-  share_button_tw.addEventListener("click", function() {
+  share_button_tw.addEventListener("click", function () {
     link = link.replace("i.", "");
     link = link.slice(0, -4);
     share_link =
