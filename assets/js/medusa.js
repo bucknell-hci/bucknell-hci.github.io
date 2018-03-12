@@ -1093,6 +1093,7 @@ function send_gaze_data_to_database(callback) {
     temp_store_data.object_y = store_data.object_y;
     temp_store_data.elapsedTime = store_data.elapsedTime;
   }
+  console.log(session_time);
   var params = {
     TableName: TABLE_NAME,
     Item: {
@@ -1325,11 +1326,12 @@ function consent_form_navigation() {
  * Loads Webgazer. Once loaded, starts the collect data procedure
  */
 function load_webgazer() {
-  navigator.getUserMedia(
-    { video: true },
-    function() {
+  navigator.getUserMedia({
+      video: true
+    },
+    function () {
       $.getScript("./assets/js/webgazer.js")
-        .done(function(script, textStatus) {
+        .done(function (script, textStatus) {
           initiate_webgazer();
         })
         .fail(function (jqxhr, settings, exception) {
@@ -2270,6 +2272,8 @@ function draw_massvis_image() {
     paradigm = "massvis";
     heatmap_data_x = store_data.gaze_x.slice(0);
     heatmap_data_y = store_data.gaze_y.slice(0);
+    session_time = new Date().getTime().toString();
+    console.log(store_data.description);
     send_gaze_data_to_database();
     reset_store_data(draw_heatmap("loop_massvis_paradigm"));
   }, massvis_paradigm_settings.image_show_time);
