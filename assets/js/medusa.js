@@ -1703,7 +1703,7 @@ function create_survey() {
 
   var age_options = "";
   var performnace_rating = "";
-  for (var i = 6; i < 120; i++) {
+  for (var i = 18; i < 120; i++) {
     age_options += "<option value=" + i + ">" + i + "</option>";
   }
   for (i = 1; i < 11; i++) {
