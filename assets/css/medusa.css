@@ -83,6 +83,11 @@ body {
   text-align: left;
   font-weight: 400;
 }
+
+#survey_info{
+    font-size: 30px;
+
+}
 .form__label {
   font-size: 0.8em;
   border: 1px solid rgba(88, 88, 88, 0.25);
