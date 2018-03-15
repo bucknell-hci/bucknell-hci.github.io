@@ -2132,7 +2132,7 @@ function draw_moving_dot(color) {
   };
   if (
     distance(curr_object.cx, curr_object.cy, curr_object.tx, curr_object.ty) <
-    20
+    40
   ) {
     loop_pursuit_paradigm();
     return;
